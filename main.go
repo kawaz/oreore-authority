@@ -44,6 +44,7 @@ func main() {
 		dns.HandleFunc("ipv4."+d.Name, handler.IPv4Handler)
 		dns.HandleFunc("ipv6."+d.Name, handler.IPv6Handler)
 		dns.HandleFunc("local."+d.Name, handler.LocalHandler)
+		dns.HandleFunc(".", handler.AcmeChallengeHandler)
 	}
 	var name, secret string
 	go serve("tcp", name, secret, false)
