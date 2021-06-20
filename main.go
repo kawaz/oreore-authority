@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/kawaz/oreore-resolver/handler"
+	"github.com/kawaz/oreore-authority/handler"
 	"github.com/miekg/dns"
 )
 
@@ -38,7 +38,6 @@ func serve(net, name, secret string, soreuseport bool) {
 		server := &dns.Server{Addr: "[::]:53", Net: net, TsigSecret: nil, ReusePort: soreuseport}
 		if err := server.ListenAndServe(); err != nil {
 			fmt.Printf("Failed to setup the "+net+" server: %s\n", err.Error())
-
 		}
 	default:
 		server := &dns.Server{Addr: ":53", Net: net, TsigSecret: map[string]string{name: secret}, ReusePort: soreuseport}
