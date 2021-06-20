@@ -15,6 +15,10 @@ var ipv6regexpHex = regexp.MustCompile(`(?:\w+-)*?([0-9a-f]{32})\.ipv6\..+$`)
 var ipv6loopback = net.IPv6loopback
 
 func IPv6Handler(w dns.ResponseWriter, r *dns.Msg) {
+	AcmeChallengeHandler(w, r)
+	if 0 < len(r.Answer) {
+		return
+	}
 	q := r.Question[0]
 	m := &dns.Msg{}
 	m.SetReply(r)
@@ -23,7 +27,7 @@ func IPv6Handler(w dns.ResponseWriter, r *dns.Msg) {
 			w.WriteMsg(m)
 		}
 	}()
-	if strings.HasPrefix(q.Name, "ipv6.oreore.") && q.Qtype == dns.TypeNS {
+	if q.Qtype == dns.TypeNS && strings.HasPrefix(q.Name, "ipv6.oreore.") {
 		rr := &dns.NS{
 			Hdr: dns.RR_Header{Name: q.Name, Rrtype: dns.TypeNS, Class: dns.ClassINET, Ttl: 300},
 			Ns:  "aws.authority.oreore.net.",

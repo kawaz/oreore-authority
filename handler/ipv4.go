@@ -16,6 +16,10 @@ var ipv4regexpHex = regexp.MustCompile(`(?:\w+-)*?([0-9a-f]{8})\.ipv4\..+$`)
 var ipv4loopback = net.IPv4(127, 0, 0, 1)
 
 func IPv4Handler(w dns.ResponseWriter, r *dns.Msg) {
+	AcmeChallengeHandler(w, r)
+	if 0 < len(r.Answer) {
+		return
+	}
 	q := r.Question[0]
 	m := &dns.Msg{}
 	m.SetReply(r)
@@ -24,7 +28,7 @@ func IPv4Handler(w dns.ResponseWriter, r *dns.Msg) {
 			w.WriteMsg(m)
 		}
 	}()
-	if strings.HasPrefix(q.Name, "ipv4.oreore.") && q.Qtype == dns.TypeNS {
+	if q.Qtype == dns.TypeNS && strings.HasPrefix(q.Name, "ipv4.oreore.") {
 		rr := &dns.NS{
 			Hdr: dns.RR_Header{Name: q.Name, Rrtype: dns.TypeNS, Class: dns.ClassINET, Ttl: 300},
 			Ns:  "aws.authority.oreore.net.",
