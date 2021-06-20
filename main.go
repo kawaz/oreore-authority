@@ -10,17 +10,40 @@ import (
 	"github.com/miekg/dns"
 )
 
+type DomainConfig struct {
+	Name string
+	Ns   []string
+}
+
+var DomainConfigs []*DomainConfig = []*DomainConfig{
+	{
+		Name: "oreore.net.",
+		Ns: []string{
+			"ns-973.awsdns-57.net.",
+			"ns-409.awsdns-51.com.",
+			"ns-1025.awsdns-00.org.",
+			"ns-1854.awsdns-39.co.uk.",
+		},
+	},
+	{
+		Name: "oreore.dev.",
+		Ns:   []string{},
+	},
+	{
+		Name: "oreore.app.",
+		Ns:   []string{},
+	},
+	{
+		Name: "oreore.page.",
+		Ns:   []string{},
+	},
+}
+
 func main() {
-	fqdns := []string{
-		"oreore.net.",
-		"oreore.dev.",
-		"oreore.app.",
-		"oreore.page.",
-	}
-	for _, fqdn := range fqdns {
-		dns.HandleFunc("ipv4."+fqdn, handler.IPv4Handler)
-		dns.HandleFunc("ipv6."+fqdn, handler.IPv6Handler)
-		dns.HandleFunc("local."+fqdn, handler.LocalHandler)
+	for _, d := range DomainConfigs {
+		dns.HandleFunc("ipv4."+d.Name, handler.IPv4Handler)
+		dns.HandleFunc("ipv6."+d.Name, handler.IPv6Handler)
+		dns.HandleFunc("local."+d.Name, handler.LocalHandler)
 	}
 	var name, secret string
 	go serve("tcp", name, secret, false)
