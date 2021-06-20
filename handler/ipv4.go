@@ -5,6 +5,7 @@ import (
 	"net"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/k0kubun/pp"
 	"github.com/miekg/dns"
@@ -23,6 +24,14 @@ func IPv4Handler(w dns.ResponseWriter, r *dns.Msg) {
 			w.WriteMsg(m)
 		}
 	}()
+	if strings.HasPrefix(q.Name, "ipv4.oreore.") && q.Qtype == dns.TypeNS {
+		rr := &dns.NS{
+			Hdr: dns.RR_Header{Name: q.Name, Rrtype: dns.TypeNS, Class: dns.ClassINET, Ttl: 300},
+			Ns:  "aws.authority.oreore.net.",
+		}
+		m.Answer = append(m.Answer, rr)
+		return
+	}
 	var ip net.IP
 	sub := ipv4regexpDigit.FindSubmatch([]byte(q.Name))
 	if sub != nil {

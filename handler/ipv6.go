@@ -23,6 +23,15 @@ func IPv6Handler(w dns.ResponseWriter, r *dns.Msg) {
 			w.WriteMsg(m)
 		}
 	}()
+	if strings.HasPrefix(q.Name, "ipv6.oreore.") && q.Qtype == dns.TypeNS {
+		rr := &dns.NS{
+			Hdr: dns.RR_Header{Name: q.Name, Rrtype: dns.TypeNS, Class: dns.ClassINET, Ttl: 300},
+			Ns:  "aws.authority.oreore.net.",
+		}
+		m.Answer = append(m.Answer, rr)
+		return
+	}
+
 	var ip net.IP
 	if ip == nil {
 		sub := ipv6regexpHex.FindSubmatch([]byte(q.Name))
