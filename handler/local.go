@@ -10,7 +10,7 @@ var localHostnameRegex = regexp.MustCompile(`^([\w\-]+\.local\.).+$`)
 
 func LocalHandler(w dns.ResponseWriter, r *dns.Msg) {
 	AcmeChallengeHandler(w, r)
-	if 0 < len(r.Answer) {
+	if 0 < len(r.Answer) || 0 < len(r.Extra) {
 		return
 	}
 	// (hostname.local.)XXXX 部分を取り出す

@@ -17,7 +17,7 @@ var ipv4loopback = net.IPv4(127, 0, 0, 1)
 
 func IPv4Handler(w dns.ResponseWriter, r *dns.Msg) {
 	AcmeChallengeHandler(w, r)
-	if 0 < len(r.Answer) {
+	if 0 < len(r.Answer) || 0 < len(r.Extra) {
 		return
 	}
 	q := r.Question[0]

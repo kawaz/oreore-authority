@@ -16,7 +16,7 @@ var ipv6loopback = net.IPv6loopback
 
 func IPv6Handler(w dns.ResponseWriter, r *dns.Msg) {
 	AcmeChallengeHandler(w, r)
-	if 0 < len(r.Answer) {
+	if 0 < len(r.Answer) || 0 < len(r.Extra) {
 		return
 	}
 	q := r.Question[0]
