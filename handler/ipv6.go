@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"net"
 	"regexp"
+	"strings"
 
 	"github.com/k0kubun/pp"
 	"github.com/miekg/dns"
@@ -15,6 +16,13 @@ var ipv6loopback = net.IPv6loopback
 
 func IPv6Handler(w dns.ResponseWriter, r *dns.Msg) {
 	q := r.Question[0]
+	m := &dns.Msg{}
+	m.SetReply(r)
+	defer func() {
+		if len(m.Answer) > 0 {
+			w.WriteMsg(m)
+		}
+	}()
 	var ip net.IP
 	if ip == nil {
 		sub := ipv6regexpHex.FindSubmatch([]byte(q.Name))
@@ -30,8 +38,6 @@ func IPv6Handler(w dns.ResponseWriter, r *dns.Msg) {
 		ip = net.IPv6loopback
 	}
 
-	m := new(dns.Msg)
-	m.SetReply(r)
 	switch q.Qtype {
 	case dns.TypeA:
 		ipv4 := ip.To4()
@@ -49,8 +55,5 @@ func IPv6Handler(w dns.ResponseWriter, r *dns.Msg) {
 			AAAA: ip,
 		}
 		m.Answer = append(m.Answer, rr)
-	}
-	if len(m.Answer) > 0 {
-		w.WriteMsg(m)
 	}
 }

@@ -16,6 +16,13 @@ var ipv4loopback = net.IPv4(127, 0, 0, 1)
 
 func IPv4Handler(w dns.ResponseWriter, r *dns.Msg) {
 	q := r.Question[0]
+	m := &dns.Msg{}
+	m.SetReply(r)
+	defer func() {
+		if len(m.Answer) > 0 {
+			w.WriteMsg(m)
+		}
+	}()
 	var ip net.IP
 	sub := ipv4regexpDigit.FindSubmatch([]byte(q.Name))
 	if sub != nil {
@@ -41,8 +48,6 @@ func IPv4Handler(w dns.ResponseWriter, r *dns.Msg) {
 		ip = ipv4loopback
 	}
 
-	m := new(dns.Msg)
-	m.SetReply(r)
 	switch q.Qtype {
 	case dns.TypeA:
 		rr := &dns.A{
@@ -56,8 +61,5 @@ func IPv4Handler(w dns.ResponseWriter, r *dns.Msg) {
 			AAAA: ip.To16(),
 		}
 		m.Answer = append(m.Answer, rr)
-	}
-	if len(m.Answer) > 0 {
-		w.WriteMsg(m)
 	}
 }
