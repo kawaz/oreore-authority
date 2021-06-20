@@ -12,17 +12,15 @@ func AcmeChallengeHandler(w dns.ResponseWriter, r *dns.Msg) {
 	q := r.Question[0]
 	m := &dns.Msg{}
 	m.SetReply(r)
-	if strings.HasPrefix(q.Name, "_acme-challenge.") {
-		if q.Qtype == dns.TypeNS {
-			for _, d := range config.OreOreConfig.Domains {
-				if strings.HasSuffix(q.Name, d.Name) {
-					for _, ns := range d.Ns {
-						rr := &dns.NS{
-							Hdr: dns.RR_Header{Name: q.Name, Rrtype: dns.TypeNS, Class: dns.ClassINET, Ttl: 300},
-							Ns:  ns,
-						}
-						m.Answer = append(m.Answer, rr)
+	if q.Qtype == dns.TypeNS && strings.HasPrefix(q.Name, "_acme-challenge.") {
+		for _, d := range config.OreOreConfig.Domains {
+			if strings.HasSuffix(q.Name, d.Name) {
+				for _, ns := range d.Ns {
+					rr := &dns.NS{
+						Hdr: dns.RR_Header{Name: q.Name, Rrtype: dns.TypeNS, Class: dns.ClassINET, Ttl: 300},
+						Ns:  ns,
 					}
+					m.Answer = append(m.Answer, rr)
 				}
 			}
 		}
